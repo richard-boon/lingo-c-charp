@@ -18,6 +18,8 @@ namespace Lingo.Game
     }
 	public interface IGameState
     {
+        public IGame Game { get; }
+
         public string Title { get; }
         public string TitleShort { get; }
         public string Description { get; }

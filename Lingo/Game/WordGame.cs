@@ -70,12 +70,12 @@ namespace Lingo.Game
 
         private WordGameState CreateWordGameState()
         {
-            WordGameState gameState = new WordGameState(Title, TitleShort, "", Response.ResponseText, Resume);
+            WordGameState gameState = new WordGameState(this, Title, TitleShort, "", Response.False, Resume);
 
             if (!Finished)
             {
                 gameState.Response = Response.ResponseText;
-                gameState.Prompt = $"Try to guess the word. The word is {Word.Length} letters long.";
+                gameState.Prompt = $"Try to guess the word. The word is {Word.Length} letters long. The first letter is {Word.ToList().First()}";
             } else if (Attempts.Last().GuessedWord == Word)
             {
                 gameState.Prompt = $"You guessed the word correctly!";
@@ -93,7 +93,7 @@ namespace Lingo.Game
         {
             if (CurrentAttempt > MaxAttempts)
                  return true;
-            if (Attempts.Last().GuessedWord == Word)
+            if (Attempts.Count > 0 && Attempts.Last().GuessedWord == Word)
                 return true;
 
             return false;
@@ -102,6 +102,8 @@ namespace Lingo.Game
 
     public class WordGameState : IGameState
     {
+        public IGame Game { get; internal set; }
+
         public string Title { get; internal set; }
         public string TitleShort { get; internal set; }
         public string Description { get; internal set; }
@@ -110,8 +112,10 @@ namespace Lingo.Game
         public string? Prompt { get; internal set; }
         public Func<IGameState, object, IGameState?> ResponseAction { get; internal set; }
 
-        public WordGameState(string title, string titleShort, string description, Response response, Func<IGameState, object, IGameState?> responseAction)
+        public WordGameState(IGame game, string title, string titleShort, string description, Response response, Func<IGameState, object, IGameState?> responseAction)
         {
+            Game = game;
+
             Title = title;
             TitleShort = titleShort;
             Description = description;
