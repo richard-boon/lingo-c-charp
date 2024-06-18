@@ -2,8 +2,11 @@
 
 namespace Lingo.Game
 {
-    public class WordGame
+    public class WordGame : IGame
     {
+        public string Title { get; } = "Lingo - Word Game";
+        public string TitleShort { get; } = "Word Game";
+
         public string Word { get; private set; }
         public int CurrentAttempt { get; private set; } = 0;
         public int MaxAttempts { get; private set; } = 4;
