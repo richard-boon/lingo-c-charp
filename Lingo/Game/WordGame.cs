@@ -30,9 +30,9 @@ namespace Lingo.Game
             if (Started && LastGameState != null)
                 return LastGameState;
 
-            IGameState gameState = new WordGameState(Title, TitleShort, "", Response.Text, Resume);
-
-            return null;
+            WordGameState wordGameState = CreateWordGameState();
+            
+            return wordGameState;
         }
 
         public IGameState? Resume(IGameState gameState)
@@ -41,7 +41,16 @@ namespace Lingo.Game
         }
         public IGameState? Resume(IGameState gameState, object gameResponse)
         {
-            throw new NotImplementedException();
+            if (gameResponse.GetType() != typeof(string))
+            {
+                return null;
+            }
+
+            string guessedWord = (string)gameResponse;
+            TryWord(guessedWord);
+
+            WordGameState wordGameState = CreateWordGameState();
+            return wordGameState;
         }
 
         public void TryWord(string word)
@@ -59,12 +68,33 @@ namespace Lingo.Game
             CurrentAttempt++;
         }
 
-        
+        private WordGameState CreateWordGameState()
+        {
+            WordGameState gameState = new WordGameState(Title, TitleShort, "", Response.ResponseText, Resume);
+
+            if (!Finished)
+            {
+                gameState.Response = Response.ResponseText;
+                gameState.Prompt = $"Try to guess the word. The word is {Word.Length} letters long.";
+            } else if (Attempts.Last().GuessedWord == Word)
+            {
+                gameState.Prompt = $"You guessed the word correctly!";
+            } else
+            {
+                gameState.Prompt = $"You did not guessed the word. The correct word was {Word}.";
+            }
+
+            gameState.Attempts = Attempts;
+
+            return gameState;
+        }
 
         private bool TestFinished()
         {
             if (CurrentAttempt > MaxAttempts)
                  return true;
+            if (Attempts.Last().GuessedWord == Word)
+                return true;
 
             return false;
         }
@@ -72,13 +102,13 @@ namespace Lingo.Game
 
     public class WordGameState : IGameState
     {
-        public string Title { get; private set; }
-        public string TitleShort { get; private set; }
-        public string Description { get; private set; }
+        public string Title { get; internal set; }
+        public string TitleShort { get; internal set; }
+        public string Description { get; internal set; }
 
-        public Response Response { get; private set; }
-        public string? Prompt { get; private set; }
-        public Func<IGameState, object, IGameState?> ResponseAction { get; private set; }
+        public Response Response { get; internal set; }
+        public string? Prompt { get; internal set; }
+        public Func<IGameState, object, IGameState?> ResponseAction { get; internal set; }
 
         public WordGameState(string title, string titleShort, string description, Response response, Func<IGameState, object, IGameState?> responseAction)
         {
@@ -89,6 +119,8 @@ namespace Lingo.Game
 
             ResponseAction = responseAction;
         }
+
+        public List<WordAttempt> Attempts { get; internal set; }
     }
 
     public class WordAttempt
@@ -104,6 +136,17 @@ namespace Lingo.Game
         public bool Finished { get; private set; } = false;
         public WordGame WordGame { get; private set; }
         public string CorrectWord { get => WordGame.Word; }
+        public string GuessedWord
+        {
+            get
+            {
+                string guessedWord = "";
+                foreach (LetterAttempt letterAttempt in LetterAttempts)
+                    guessedWord += letterAttempt.Letter.ToString();
+
+                return guessedWord;
+            }
+        }
 
         public List<LetterAttempt> LetterAttempts { get; private set; } = new List<LetterAttempt>();
 
@@ -195,4 +238,3 @@ namespace Lingo.Game
         NotInWord,
     }
 }
-

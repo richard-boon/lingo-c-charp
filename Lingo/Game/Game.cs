@@ -30,6 +30,6 @@ namespace Lingo.Game
     public enum Response
     {
         False,
-        Text,
+        ResponseText,
     }
 }
