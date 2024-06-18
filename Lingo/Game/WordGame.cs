@@ -10,7 +10,10 @@ namespace Lingo.Game
         public string Word { get; private set; }
         public int CurrentAttempt { get; private set; } = 0;
         public int MaxAttempts { get; private set; } = 4;
-        public bool Finished { get; private set; } = false;
+        public bool Finished { get => TestFinished(); }
+        public bool Started { get; private set; } = false;
+
+        public IGameState? LastGameState { get; private set; }
 
         public List<WordAttempt> Attempts { get; private set; } = new List<WordAttempt>();
 
@@ -18,6 +21,27 @@ namespace Lingo.Game
         {
             Word = word.ToLower();
             MaxAttempts = maxAttempts;
+        }
+
+        public IGameState? Start()
+        {
+            if (Finished)
+                return null;
+            if (Started && LastGameState != null)
+                return LastGameState;
+
+            IGameState gameState = new WordGameState(Title, TitleShort, "", Response.Text, Resume);
+
+            return null;
+        }
+
+        public IGameState? Resume(IGameState gameState)
+        {
+            throw new NotImplementedException();
+        }
+        public IGameState? Resume(IGameState gameState, object gameResponse)
+        {
+            throw new NotImplementedException();
         }
 
         public void TryWord(string word)
@@ -33,8 +57,37 @@ namespace Lingo.Game
             currentWordAttempt.TryWord(word);
 
             CurrentAttempt++;
+        }
+
+        
+
+        private bool TestFinished()
+        {
             if (CurrentAttempt > MaxAttempts)
-                Finished = true;
+                 return true;
+
+            return false;
+        }
+    }
+
+    public class WordGameState : IGameState
+    {
+        public string Title { get; private set; }
+        public string TitleShort { get; private set; }
+        public string Description { get; private set; }
+
+        public Response Response { get; private set; }
+        public string? Prompt { get; private set; }
+        public Func<IGameState, object, IGameState?> ResponseAction { get; private set; }
+
+        public WordGameState(string title, string titleShort, string description, Response response, Func<IGameState, object, IGameState?> responseAction)
+        {
+            Title = title;
+            TitleShort = titleShort;
+            Description = description;
+            Response = response;
+
+            ResponseAction = responseAction;
         }
     }
 

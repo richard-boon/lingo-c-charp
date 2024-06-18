@@ -6,33 +6,30 @@ namespace Lingo.Game
 		public string Title { get; }
 		public string TitleShort { get; }
 
-		public IGameAction? Start();
-		public IGameAction? Resume(IGameAction gameAction);
-	}
-	public interface IGameAction
+		public bool Finished { get; }
+        public bool Started { get; }
+
+        public IGameState? LastGameState { get; }
+
+        public IGameState? Start();
+		public IGameState? Resume(IGameState gameState);
+        public IGameState? Resume(IGameState gameState, object response);
+
+    }
+	public interface IGameState
     {
         public string Title { get; }
         public string TitleShort { get; }
-		public string Description { get; }
+        public string Description { get; }
 
-        // public enum Type { get; }
+        public Response Response { get; }
+        public string? Prompt { get; }
+        public Func<IGameState, object, IGameState?> ResponseAction { get; }
+    }
 
-		public Action? Action { get; }
-	}
-
-	public enum Type
-	{
-		Prompt,
-		Finished,
-	}
-
-	public abstract class GameBase : IGame
-	{
-		public abstract string Title { get; }
-        public abstract string TitleShort { get; }
-
-        public abstract IGameAction? Start();
-        public abstract IGameAction? Resume(IGameAction gameAction);
+    public enum Response
+    {
+        False,
+        Text,
     }
 }
-
