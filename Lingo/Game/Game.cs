@@ -25,6 +25,7 @@ namespace Lingo.Game
         public string Description { get; }
 
         public Response Response { get; }
+        public bool TestResponseInput(object response);
         public string? Prompt { get; }
         public Func<IGameState, object, IGameState?> ResponseAction { get; }
     }

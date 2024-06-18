@@ -42,9 +42,7 @@ namespace Lingo.Game
         public IGameState? Resume(IGameState gameState, object gameResponse)
         {
             if (gameResponse.GetType() != typeof(string))
-            {
                 return null;
-            }
 
             string guessedWord = (string)gameResponse;
             TryWord(guessedWord);
@@ -125,6 +123,19 @@ namespace Lingo.Game
         }
 
         public List<WordAttempt> Attempts { get; internal set; }
+
+        public bool TestResponseInput(object response)
+        {
+            if (response.GetType() != typeof(string))
+                return false;
+
+            string guessedWord = response.ToString();
+
+            if (guessedWord.ToList().Count != ((WordGame)Game).Word.Count())
+                return false;
+
+            return true;
+        }
     }
 
     public class WordAttempt

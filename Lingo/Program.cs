@@ -45,7 +45,14 @@ internal class Program
             Console.WriteLine(gameState.Prompt);
             if (gameState.Response == Response.ResponseText)
             {
-                string? response = Console.ReadLine();
+                bool validInput = false;
+                string? response = "";
+                while (!validInput)
+                {
+                    response = Console.ReadLine();
+                    validInput = gameState.TestResponseInput(response);
+                }
+                
                 gameState = gameState.ResponseAction(gameState, response);
             }
             else if (gameState.Game.Finished)
